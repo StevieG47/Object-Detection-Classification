@@ -1,6 +1,8 @@
 # Build Deep Conv Network for MNIST: https://www.tensorflow.org/get_started/mnist/pros
 
 import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Get the MNIST data
 from tensorflow.examples.tutorials.mnist import input_data
@@ -179,31 +181,49 @@ correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y, 1))
 # Same as before, average of the correct predictions
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-with tf.Session() as sess:
+#with tf.Session() as sess:
+sess = tf.InteractiveSession()
   
-  # Initialize variables
-  sess.run(tf.global_variables_initializer())
+# Initialize variables
+sess.run(tf.global_variables_initializer())
   
   # Num Passes
-  for i in range(100):
-    print(i)
-    
+for i in range(100):
+   # print(i)
+
     # get batch of images, labels
     batch = mnist.train.next_batch(50)
-    
+
     # every once in a while look at training accuracy
     if i % 100 == 0:
-        
-      # Get accuracy on current batch, keep prob is 1 so we dont use drop out
-      train_accuracy = accuracy.eval(feed_dict={ x: batch[0], y: batch[1], keep_prob: 1.0})
-      print('step %d, training accuracy %g' % (i, train_accuracy))
     
+        # Get accuracy on current batch, keep prob is 1 so we dont use drop out
+        train_accuracy = accuracy.eval(feed_dict={ x: batch[0], y: batch[1], keep_prob: 1.0})
+        print('step %d, training accuracy %g' % (i, train_accuracy))
+
     # Run optimizer on current batch, dropout at 50%
     train_step.run(feed_dict={x: batch[0], y: batch[1], keep_prob: 0.5})
 
   # After training get test accuracy, dont use dropout
-  print('test accuracy %g' % accuracy.eval(feed_dict={
-      x: mnist.test.images, y: mnist.test.labels, keep_prob: 1.0}))
+  #print('test accuracy %g' % accuracy.eval(feed_dict={
+   #   x: mnist.test.images, y: mnist.test.labels, keep_prob: 1.0}))
+    
+    
+# PRINT IMAGE WITH PREDICTION
+index = np.random.randint(10000)
+im = mnist.test.images[index,:]
+im = im.reshape(1,784)
+
+predictions = sess.run(y_conv, feed_dict ={ x:im, keep_prob:1.0})
+prediction = int(sess.run(tf.argmax(predictions,1)))
+
+im = im.reshape(28,28)
+plt.imshow(im, cmap = 'binary')
+title = 'Prediction: ' + str(prediction)
+plt.title(title)
+
+
+
 
 
 

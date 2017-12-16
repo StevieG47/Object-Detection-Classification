@@ -1,10 +1,15 @@
 # Tensorflow MNIST tutorialL https://www.tensorflow.org/get_started/mnist/beginners
 
 import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Get the MNIST data
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+
+
+
 
 
 # Create symbolic variable/placeholder for input. Input is 28x28 image or 784 flattened array
@@ -83,8 +88,22 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
 # Print Accuracy
-acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels}) # geed_dict sets those placeholders we defined
+acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels}) # feed_dict sets those placeholders we defined
 print('Accuracy: ', round(acc*100,2), '%') # accuracy is like 92%
+
+
+
+# PRINT A TEST IMAGE WITH IT'S PREDICTION
+index = np.random.randint(10000)
+im = mnist.test.images[index,:]
+im = im.reshape(1,784)
+predictions = sess.run(yhat,feed_dict = {x:im})
+prediction = int(sess.run(tf.argmax(predictions,1)))
+
+im = im.reshape(28,28)
+plt.imshow(im, cmap = 'binary')
+title = 'Prediction: ' + str(prediction)
+plt.title(title)
 
 
 
