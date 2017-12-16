@@ -84,7 +84,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # Print Accuracy
 acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels}) # geed_dict sets those placeholders we defined
-print('Accuracy: ', round(acc*100,2), '%')
+print('Accuracy: ', round(acc*100,2), '%') # accuracy is like 92%
 
 
 
