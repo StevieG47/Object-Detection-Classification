@@ -1,10 +1,9 @@
 # import packages
 from imutils.video import FPS
-import matplotlib.image as mpimg
 import numpy as np
 import argparse
 import cv2
-import os
+
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -22,7 +21,7 @@ args = ap.parse_args()
 #im = test_images[0]
 #imshape = im.shape
 
-# Read video
+# READ VIDEO
 #vid = cv2.VideoCapture('../../OpenCV/selfDrivingCar/solidWhiteRight.mp4')
 vid = cv2.VideoCapture(args.file)
 ret, im = vid.read()
@@ -31,12 +30,12 @@ imshape = im.shape
 # -------CREATE VIDEO WRITER------------------
 # Define the codec and create VideoWriter object
 fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
-videoOut = cv2.VideoWriter('detectVideo_Output.avi',fourcc, 20.0, (im.shape[1],im.shape[0]))
+videoOut = cv2.VideoWriter('output/detectVideo_Output.avi',fourcc, 20.0, (im.shape[1],im.shape[0]))
 
 # LOAD MODEL
 print("[INFO] loading model...")
-print(args.method)
-print(type(args.method))
+#print(args.method)
+#print(type(args.method))
 
 # Check argument for caffe or tensorflow, then use selected model
 if args.method == 'tensorflow':
@@ -68,7 +67,7 @@ if args.method == 'tensorflow':
             86: 'vase', 87: 'scissors', 88: 'teddy bear', 89: 'hair drier', 90: 'toothbrush' }
   
 
-else:
+elif args.method == 'caffe':
     # Mobile net SSD Model from Caffe
     prtxt = 'MobileNetSSD_deploy.prototxt.txt'
     model = 'MobileNetSSD_deploy.caffemodel' 
@@ -83,11 +82,36 @@ else:
     # Load the Model
     net = cv2.dnn.readNetFromCaffe(prtxt, model)
 
+elif args.method == 'bison':
+    
+    # Get the tensorflow graph and pbtxt for bison detection
+    prtxt = 'bison-detector/bison.pbtxt'
+    model = 'bison-detector/frozen_inference_graph.pb'
+    
+    # Load the model
+    net = cv2.dnn.readNetFromTensorflow(model, prtxt)
+    
+    # initialize list of classes, this is just one class: bison
+    CLASSES = {0: 'background', 1: 'bison'}
+
+#elif args.method == 'trafficSign':
+#    
+#    # Get the tensorflow graph and pbtxt for bison detection
+#    prtxt = 'bison-detector/sign.pbtxt'
+#    model = 'tfclassifier/image_classification/outputSigns.pb'
+#    
+#    # Load the model
+#    net = cv2.dnn.readNetFromTensorflow(model, prtxt)
+#    
+#    # initialize list of classes, this is just one class: bison
+#    CLASSES = {0: 'background', 1: 'Stop Sign', 2: 'Yield Sign', 3: 'Parking Sign'}
+
+
 # Randomize some colors for each class
-COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
+COLORS = np.random.uniform(0, 255, size=(len(CLASSES)+5, 3))
 
 # Confidence threshold
-conf = .2
+conf = .55
  
 # initialize the video stream, allow the cammera sensor to warmup,
 # and initialize the FPS counter
@@ -109,7 +133,7 @@ while True:
     	# grab the frame dimensions and convert it to a blob
         (h, w) = frame.shape[:2]
         blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)),
-    		0.007843, (300, 300), 127.5)
+    		0.007843, (300, 300), (127.5, 127.5, 127.5))
      
     	# pass the blob through the network and obtain the detections and
     	# predictions
@@ -133,6 +157,7 @@ while True:
                 (startX, startY, endX, endY) = box.astype("int")
      
     			# draw the prediction on the frame
+               # print('idx: ',idx)
                 label = "{}: {:.2f}%".format(CLASSES[idx],
     				confidence * 100)
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
