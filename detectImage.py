@@ -1,5 +1,5 @@
 # import packages
-from imutils.video import FPS
+import imutils
 import numpy as np
 import argparse
 import cv2
@@ -21,7 +21,7 @@ print("[INFO] loading model...")
 #print(type(args.method))
 
 # Check argument for caffe or tensorflow, then use selected model
-if args.method == 'tensorflow':
+if args.method == 'tensorflow-mobilenet':
     
     # Mobile net SSD from Tensorflow
     prtxt = "ssd_mobilenet_v1_coco_11_06_2017/ssd_mobilenet_v1_coco.pbtxt"
@@ -49,6 +49,34 @@ if args.method == 'tensorflow':
             80: 'toaster', 81: 'sink', 82: 'refrigerator', 84: 'book', 85: 'clock',
             86: 'vase', 87: 'scissors', 88: 'teddy bear', 89: 'hair drier', 90: 'toothbrush' }
   
+# Incpetion tensorflow model
+elif args.method == 'tensorflow-inception':
+    
+    # Inception SSD from Tensorflow
+    prtxt = "ssd_inception_v2_coco_2017_11_17/graphFile.pbtxt"
+    model = "ssd_inception_v2_coco_2017_11_17/frozen_inference_graph.pb"
+      
+    # Load the model
+    net = cv2.dnn.readNetFromTensorflow(model, prtxt)
+    
+    # initialize list of classes for the tensorflow coco model
+    CLASSES = { 0: 'background',
+            1: 'person', 2: 'bicycle', 3: 'car', 4: 'motorcycle', 5: 'airplane', 6: 'bus',
+            7: 'train', 8: 'truck', 9: 'boat', 10: 'traffic light', 11: 'fire hydrant',
+            13: 'stop sign', 14: 'parking meter', 15: 'bench', 16: 'bird', 17: 'cat',
+            18: 'dog', 19: 'horse', 20: 'sheep', 21: 'cow', 22: 'elephant', 23: 'bear',
+            24: 'zebra', 25: 'giraffe', 27: 'backpack', 28: 'umbrella', 31: 'handbag',
+            32: 'tie', 33: 'suitcase', 34: 'frisbee', 35: 'skis', 36: 'snowboard',
+            37: 'sports ball', 38: 'kite', 39: 'baseball bat', 40: 'baseball glove',
+            41: 'skateboard', 42: 'surfboard', 43: 'tennis racket', 44: 'bottle',
+            46: 'wine glass', 47: 'cup', 48: 'fork', 49: 'knife', 50: 'spoon',
+            51: 'bowl', 52: 'banana', 53: 'apple', 54: 'sandwich', 55: 'orange',
+            56: 'broccoli', 57: 'carrot', 58: 'hot dog', 59: 'pizza', 60: 'donut',
+            61: 'cake', 62: 'chair', 63: 'couch', 64: 'potted plant', 65: 'bed',
+            67: 'dining table', 70: 'toilet', 72: 'tv', 73: 'laptop', 74: 'mouse',
+            75: 'remote', 76: 'keyboard', 77: 'cell phone', 78: 'microwave', 79: 'oven',
+            80: 'toaster', 81: 'sink', 82: 'refrigerator', 84: 'book', 85: 'clock',
+            86: 'vase', 87: 'scissors', 88: 'teddy bear', 89: 'hair drier', 90: 'toothbrush' }
 
 elif args.method == 'caffe':
     # Mobile net SSD Model from Caffe
@@ -70,7 +98,7 @@ elif args.method == 'bison':
     
     # Get the tensorflow graph and pbtxt for bison detection
     prtxt = 'bison-detector/bison.pbtxt'
-    model = 'bison-detector/frozen_inference_graph.pb'
+    model = 'bison-detector/frozen_inference_graph2.pb'
     
     # Load the model
     net = cv2.dnn.readNetFromTensorflow(model, prtxt)
@@ -78,17 +106,19 @@ elif args.method == 'bison':
     # initialize list of classes, this is just one class: bison
     CLASSES = {0: 'background', 1: 'bison'}
     
-#elif args.method == 'trafficSign':
-#    
-#    # Get the tensorflow graph and pbtxt for bison detection
-#    prtxt = 'bison-detector/signs.pbtxt'
-#    model = 'bison-detector/outputSigns.pb'
-#    
-#    # Load the model
-#    net = cv2.dnn.readNetFromTensorflow(model, prtxt)
-#    
-#    # initialize list of classes, this is just one class: bison
-#    CLASSES = {0: 'background', 1: 'Stop Sign', 2: 'Yield Sign', 3: 'Parking Sign'}
+
+elif args.method == 'trafficSign':
+    
+    # Get the tensorflow graph and pbtxt for signdetection
+    prtxt = 'trafficSign-detector/trafficSign.pbtxt'
+    model = 'trafficSign-detector/frozen_inference_graph.pb'
+    
+    # Load the model
+    net = cv2.dnn.readNetFromTensorflow(model, prtxt)
+    
+    # initialize list of classes, this is just one class: bison
+    #CLASSES = {0: 'background', 1: 'Stop Sign', 2: 'Yield Sign', 3: 'Parking Sign'}
+    CLASSES = {0: 'background', 1: 'Stop Sign'}
     
 
 # Randomize some colors for each class
@@ -143,6 +173,7 @@ for i in np.arange(0, detections.shape[2]):
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
 
 # show the output frame
+frame = imutils.resize(frame, width=800)
 cv2.imshow("Image", frame)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
