@@ -159,8 +159,8 @@ while True:
     if ret:
     	# grab the frame dimensions and convert it to a blob
         (h, w) = frame.shape[:2]
-        blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)),
-    		0.007843, (300, 300), (127.5, 127.5, 127.5), swapRB=True, crop=False)
+        blob = cv2.dnn.blobFromImage(cv2.resize(frame, (350, 350)),
+    		0.007843, (350, 350), (127.5, 127.5, 127.5), swapRB=True, crop=False)
      
      	# pass the blob through the network and obtain the detections and
     	    # predictions

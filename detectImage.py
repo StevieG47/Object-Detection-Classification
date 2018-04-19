@@ -119,7 +119,17 @@ elif args.method == 'trafficSign':
     # initialize list of classes, this is just one class: bison
     #CLASSES = {0: 'background', 1: 'Stop Sign', 2: 'Yield Sign', 3: 'Parking Sign'}
     CLASSES = {0: 'background', 1: 'Stop Sign'}
+
+elif args.method == 'car':
+    # Get the tensorflow graph and pbtxt for car detection
+    prtxt = 'car-detector/car.pbtxt'
+    model = 'car-detector/output_inference_graph.pb'
     
+    # Load the model
+    net = cv2.dnn.readNetFromTensorflow(model, prtxt)
+    
+    # initialize list of classes, this is just one class: bison
+    CLASSES = {0: 'background', 1: 'car'}	
 
 # Randomize some colors for each class
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES)+5, 3))
